@@ -1,0 +1,958 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>OmniTemp - Modern Temperature Converter</title>
+  
+  <!-- Google Fonts & Tailwind CSS -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+            mono: ['"JetBrains Mono"', 'monospace'],
+          },
+          colors: {
+            brand: {
+              50: '#eff6ff',
+              500: '#3b82f6',
+              600: '#2563eb',
+              700: '#1d4ed8',
+            },
+            freeze: '#38bdf8',
+            cool: '#34d399',
+            warm: '#fbbf24',
+            hot: '#f97316',
+            boil: '#ef4444',
+          },
+          boxShadow: {
+            'glow-freeze': '0 0 25px -5px rgba(56, 189, 248, 0.4)',
+            'glow-boil': '0 0 25px -5px rgba(239, 68, 68, 0.4)',
+            'glass': '0 8px 32px 0 rgba(0, 0, 0, 0.25)',
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    /* Custom Scrollbar */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: rgba(156, 163, 175, 0.3);
+      border-radius: 9999px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: rgba(156, 163, 175, 0.5);
+    }
+
+    /* Range slider custom styling */
+    input[type=range] {
+      -webkit-appearance: none;
+      background: transparent;
+    }
+    input[type=range]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      height: 22px;
+      width: 22px;
+      border-radius: 50%;
+      background: #ffffff;
+      border: 3px solid #3b82f6;
+      cursor: pointer;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+      transition: all 0.15s ease-in-out;
+    }
+    input[type=range]::-webkit-slider-thumb:hover {
+      transform: scale(1.18);
+      box-shadow: 0 0 15px rgba(59, 130, 246, 0.6);
+    }
+
+    /* Thermometer mercury transition */
+    .mercury-fluid {
+      transition: height 0.35s cubic-bezier(0.34, 1.56, 0.64, 1), background 0.4s ease;
+    }
+
+    /* Soft glass panel */
+    .glass-panel {
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+    }
+  </style>
+</head>
+
+<body class="bg-slate-950 text-slate-100 min-h-screen font-sans selection:bg-blue-600 selection:text-white antialiased transition-colors duration-300">
+  <div class="fixed inset-0 bg-[radial-gradient(ellipse_80%_80%_at_50%_-20%,rgba(120,119,198,0.15),rgba(255,255,255,0))] pointer-events-none"></div>
+
+  <!-- Toast Notification Container -->
+  <div id="toast" class="fixed top-6 right-6 z-50 transform translate-y-[-150%] opacity-0 transition-all duration-300 pointer-events-none flex items-center gap-3 bg-slate-900 border border-slate-700/70 text-slate-200 px-4 py-3 rounded-xl shadow-2xl">
+    <svg class="w-5 h-5 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+    </svg>
+    <span id="toastMsg" class="text-sm font-medium">Copied to clipboard!</span>
+  </div>
+
+  <div class="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 flex flex-col min-h-screen">
+    <!-- Navbar -->
+    <header class="flex items-center justify-between pb-6 border-b border-slate-800/80">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-blue-600 via-indigo-500 to-rose-500 flex items-center justify-center shadow-lg shadow-indigo-500/20">
+          <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+          </svg>
+        </div>
+        <div>
+          <h1 class="text-xl font-bold tracking-tight text-white flex items-center gap-2">
+            Omni<span class="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-rose-400">Temp</span>
+            <span class="text-[10px] px-2 py-0.5 font-semibold tracking-wider uppercase rounded-full bg-slate-800 text-slate-400 border border-slate-700/60">Pro</span>
+          </h1>
+          <p class="text-xs text-slate-400">Multi-Unit Real-Time Thermodynamic Engine</p>
+        </div>
+      </div>
+
+      <!-- Controls Right: Precision & Mode Toggle -->
+      <div class="flex items-center gap-3">
+        <!-- Precision Toggle -->
+        <div class="flex items-center bg-slate-900/90 border border-slate-800 rounded-xl p-1 text-xs">
+          <span class="px-2 text-slate-400 font-medium hidden sm:inline">Decimals:</span>
+          <button onclick="setPrecision(0)" id="prec-0" class="px-2.5 py-1 rounded-lg transition-all text-slate-400 hover:text-white">0</button>
+          <button onclick="setPrecision(2)" id="prec-2" class="px-2.5 py-1 rounded-lg transition-all bg-blue-600 text-white font-semibold shadow-sm">2</button>
+          <button onclick="setPrecision(4)" id="prec-4" class="px-2.5 py-1 rounded-lg transition-all text-slate-400 hover:text-white">4</button>
+          <button onclick="setPrecision(8)" id="prec-8" class="px-2.5 py-1 rounded-lg transition-all text-slate-400 hover:text-white hidden sm:block">Max</button>
+        </div>
+
+        <!-- Audio feedback toggle -->
+        <button id="soundToggle" onclick="toggleSound()" class="p-2.5 rounded-xl bg-slate-900/90 border border-slate-800 text-slate-400 hover:text-white hover:border-slate-700 transition" title="Sound Effects">
+          <svg id="soundIcon" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z"></path>
+          </svg>
+        </button>
+      </div>
+    </header>
+
+    <main class="grid grid-cols-1 lg:grid-cols-12 gap-6 my-6 flex-grow">
+      
+      <!-- LEFT & CENTER: Converter Cards & Thermometer (8 cols) -->
+      <section class="lg:col-span-8 flex flex-col gap-6">
+
+        <!-- Top Overview banner with status indicator -->
+        <div id="statusBanner" class="p-4 rounded-2xl bg-gradient-to-r from-blue-950/60 to-slate-900/70 border border-blue-900/40 flex flex-wrap items-center justify-between gap-4 transition-all duration-300">
+          <div class="flex items-center gap-3.5">
+            <div id="statusIconBg" class="w-11 h-11 rounded-xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-xl transition-all">
+              ❄️
+            </div>
+            <div>
+              <div class="flex items-center gap-2">
+                <h3 id="statusTitle" class="text-sm font-bold text-white tracking-wide">Standard Room Temperature</h3>
+                <span id="statusTag" class="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full bg-blue-500/20 text-blue-300 border border-blue-500/30">Mild</span>
+              </div>
+              <p id="statusDesc" class="text-xs text-slate-400 mt-0.5">Optimal conditions for typical indoor human comfort.</p>
+            </div>
+          </div>
+          <div class="flex items-center gap-2 bg-slate-900/80 px-3 py-1.5 rounded-xl border border-slate-800 text-xs">
+            <span class="text-slate-400">Current Base:</span>
+            <span id="currentBaseTemp" class="font-mono font-semibold text-emerald-400">25.00 °C</span>
+          </div>
+        </div>
+
+        <!-- 4-Way Multi-Unit Synchronous Cards Grid -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          
+          <!-- Celsius Card -->
+          <div class="relative group bg-slate-900/70 hover:bg-slate-900/90 border border-slate-800 hover:border-blue-500/40 p-5 rounded-2xl transition duration-200">
+            <div class="flex items-center justify-between mb-3">
+              <div class="flex items-center gap-2.5">
+                <span class="w-8 h-8 rounded-lg bg-blue-500/20 text-blue-400 font-bold flex items-center justify-center text-sm border border-blue-500/30">°C</span>
+                <div>
+                  <h4 class="text-sm font-semibold text-white">Celsius</h4>
+                  <p class="text-[11px] text-slate-400">Centigrade Scale (Water: 0° - 100°)</p>
+                </div>
+              </div>
+              <button onclick="copyUnit('C')" class="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition" title="Copy value">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>
+              </button>
+            </div>
+            <div class="relative">
+              <input type="number" step="any" id="input-C" oninput="handleInputChange('C', this.value)" 
+                     class="w-full bg-slate-950/80 border border-slate-800 focus:border-blue-500 rounded-xl px-4 py-3 text-2xl font-mono font-bold text-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 transition pr-14" placeholder="0">
+              <span class="absolute right-4 top-1/2 -translate-y-1/2 font-mono text-sm text-slate-500 font-bold">°C</span>
+            </div>
+            <!-- Increments -->
+            <div class="flex items-center justify-between mt-3 pt-3 border-t border-slate-800/60 text-xs">
+              <span class="text-slate-500 font-medium">Quick Step:</span>
+              <div class="flex items-center gap-1.5">
+                <button onclick="stepValue('C', -5)" class="px-2 py-0.5 rounded bg-slate-800 text-slate-300 hover:bg-slate-700 hover:text-white transition">-5</button>
+                <button onclick="stepValue('C', -1)" class="px-2 py-0.5 rounded bg-slate-800 text-slate-300 hover:bg-slate-700 hover:text-white transition">-1</button>
+                <button onclick="stepValue('C', 1)" class="px-2 py-0.5 rounded bg-slate-800 text-slate-300 hover:bg-slate-700 hover:text-white transition">+1</button>
+                <button onclick="stepValue('C', 5)" class="px-2 py-0.5 rounded bg-slate-800 text-slate-300 hover:bg-slate-700 hover:text-white transition">+5</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Fahrenheit Card -->
+          <div class="relative group bg-slate-900/70 hover:bg-slate-900/90 border border-slate-800 hover:border-amber-500/40 p-5 rounded-2xl transition duration-200">
+            <div class="flex items-center justify-between mb-3">
+              <div class="flex items-center gap-2.5">
+                <span class="w-8 h-8 rounded-lg bg-amber-500/20 text-amber-400 font-bold flex items-center justify-center text-sm border border-amber-500/30">°F</span>
+                <div>
+                  <h4 class="text-sm font-semibold text-white">Fahrenheit</h4>
+                  <p class="text-[11px] text-slate-400">US Customary (Water: 32° - 212°)</p>
+                </div>
+              </div>
+              <button onclick="copyUnit('F')" class="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition" title="Copy value">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>
+              </button>
+            </div>
+            <div class="relative">
+              <input type="number" step="any" id="input-F" oninput="handleInputChange('F', this.value)" 
+                     class="w-full bg-slate-950/80 border border-slate-800 focus:border-amber-500 rounded-xl px-4 py-3 text-2xl font-mono font-bold text-white focus:outline-none focus:ring-2 focus:ring-amber-500/20 transition pr-14" placeholder="32">
+              <span class="absolute right-4 top-1/2 -translate-y-1/2 font-mono text-sm text-slate-500 font-bold">°F</span>
+            </div>
+            <!-- Increments -->
+            <div class="flex items-center justify-between mt-3 pt-3 border-t border-slate-800/60 text-xs">
+              <span class="text-slate-500 font-medium">Quick Step:</span>
+              <div class="flex items-center gap-1.5">
+                <button onclick="stepValue('F', -5)" class="px-2 py-0.5 rounded bg-slate-800 text-slate-300 hover:bg-slate-700 hover:text-white transition">-5</button>
+                <button onclick="stepValue('F', -1)" class="px-2 py-0.5 rounded bg-slate-800 text-slate-300 hover:bg-slate-700 hover:text-white transition">-1</button>
+                <button onclick="stepValue('F', 1)" class="px-2 py-0.5 rounded bg-slate-800 text-slate-300 hover:bg-slate-700 hover:text-white transition">+1</button>
+                <button onclick="stepValue('F', 5)" class="px-2 py-0.5 rounded bg-slate-800 text-slate-300 hover:bg-slate-700 hover:text-white transition">+5</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Kelvin Card -->
+          <div class="relative group bg-slate-900/70 hover:bg-slate-900/90 border border-slate-800 hover:border-purple-500/40 p-5 rounded-2xl transition duration-200">
+            <div class="flex items-center justify-between mb-3">
+              <div class="flex items-center gap-2.5">
+                <span class="w-8 h-8 rounded-lg bg-purple-500/20 text-purple-400 font-bold flex items-center justify-center text-sm border border-purple-500/30">K</span>
+                <div>
+                  <h4 class="text-sm font-semibold text-white">Kelvin</h4>
+                  <p class="text-[11px] text-slate-400">SI Thermodynamic Scale (0 K = -273.15°C)</p>
+                </div>
+              </div>
+              <button onclick="copyUnit('K')" class="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition" title="Copy value">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>
+              </button>
+            </div>
+            <div class="relative">
+              <input type="number" step="any" id="input-K" oninput="handleInputChange('K', this.value)" 
+                     class="w-full bg-slate-950/80 border border-slate-800 focus:border-purple-500 rounded-xl px-4 py-3 text-2xl font-mono font-bold text-white focus:outline-none focus:ring-2 focus:ring-purple-500/20 transition pr-14" placeholder="273.15">
+              <span class="absolute right-4 top-1/2 -translate-y-1/2 font-mono text-sm text-slate-500 font-bold">K</span>
+            </div>
+            <!-- Increments -->
+            <div class="flex items-center justify-between mt-3 pt-3 border-t border-slate-800/60 text-xs">
+              <span class="text-slate-500 font-medium">Quick Step:</span>
+              <div class="flex items-center gap-1.5">
+                <button onclick="stepValue('K', -5)" class="px-2 py-0.5 rounded bg-slate-800 text-slate-300 hover:bg-slate-700 hover:text-white transition">-5</button>
+                <button onclick="stepValue('K', -1)" class="px-2 py-0.5 rounded bg-slate-800 text-slate-300 hover:bg-slate-700 hover:text-white transition">-1</button>
+                <button onclick="stepValue('K', 1)" class="px-2 py-0.5 rounded bg-slate-800 text-slate-300 hover:bg-slate-700 hover:text-white transition">+1</button>
+                <button onclick="stepValue('K', 5)" class="px-2 py-0.5 rounded bg-slate-800 text-slate-300 hover:bg-slate-700 hover:text-white transition">+5</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Rankine Card -->
+          <div class="relative group bg-slate-900/70 hover:bg-slate-900/90 border border-slate-800 hover:border-emerald-500/40 p-5 rounded-2xl transition duration-200">
+            <div class="flex items-center justify-between mb-3">
+              <div class="flex items-center gap-2.5">
+                <span class="w-8 h-8 rounded-lg bg-emerald-500/20 text-emerald-400 font-bold flex items-center justify-center text-sm border border-emerald-500/30">°R</span>
+                <div>
+                  <h4 class="text-sm font-semibold text-white">Rankine</h4>
+                  <p class="text-[11px] text-slate-400">Absolute Fahrenheit Scale (0 °R = -459.67°F)</p>
+                </div>
+              </div>
+              <button onclick="copyUnit('R')" class="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition" title="Copy value">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>
+              </button>
+            </div>
+            <div class="relative">
+              <input type="number" step="any" id="input-R" oninput="handleInputChange('R', this.value)" 
+                     class="w-full bg-slate-950/80 border border-slate-800 focus:border-emerald-500 rounded-xl px-4 py-3 text-2xl font-mono font-bold text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/20 transition pr-14" placeholder="491.67">
+              <span class="absolute right-4 top-1/2 -translate-y-1/2 font-mono text-sm text-slate-500 font-bold">°R</span>
+            </div>
+            <!-- Increments -->
+            <div class="flex items-center justify-between mt-3 pt-3 border-t border-slate-800/60 text-xs">
+              <span class="text-slate-500 font-medium">Quick Step:</span>
+              <div class="flex items-center gap-1.5">
+                <button onclick="stepValue('R', -5)" class="px-2 py-0.5 rounded bg-slate-800 text-slate-300 hover:bg-slate-700 hover:text-white transition">-5</button>
+                <button onclick="stepValue('R', -1)" class="px-2 py-0.5 rounded bg-slate-800 text-slate-300 hover:bg-slate-700 hover:text-white transition">-1</button>
+                <button onclick="stepValue('R', 1)" class="px-2 py-0.5 rounded bg-slate-800 text-slate-300 hover:bg-slate-700 hover:text-white transition">+1</button>
+                <button onclick="stepValue('R', 5)" class="px-2 py-0.5 rounded bg-slate-800 text-slate-300 hover:bg-slate-700 hover:text-white transition">+5</button>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Interactive Continuous Temperature Slider -->
+        <div class="p-6 bg-slate-900/60 border border-slate-800 rounded-2xl">
+          <div class="flex items-center justify-between mb-2">
+            <span class="text-xs uppercase font-bold tracking-wider text-slate-400">Interactive Range Explorer</span>
+            <span class="text-xs text-slate-500">Range: -50°C to +150°C</span>
+          </div>
+          <input type="range" id="tempSlider" min="-50" max="150" step="0.5" value="25" oninput="handleSliderChange(this.value)" 
+                 class="w-full h-2.5 rounded-lg appearance-none cursor-pointer bg-gradient-to-r from-cyan-500 via-amber-400 to-rose-600">
+          <div class="flex justify-between text-[11px] text-slate-500 font-mono mt-2">
+            <span>-50°C (Antarctic)</span>
+            <span>0°C (Ice Point)</span>
+            <span>37°C (Human Body)</span>
+            <span>100°C (Boiling)</span>
+            <span>150°C (Oven Bake)</span>
+          </div>
+        </div>
+
+        <div class="p-6 bg-slate-900/70 border border-slate-800/80 rounded-2xl relative overflow-hidden">
+          <div class="flex items-center justify-between mb-4">
+            <h3 class="text-sm font-bold uppercase tracking-wider text-slate-300 flex items-center gap-2">
+              <svg class="w-4 h-4 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"></path></svg>
+              Dedicated Pair Converter & Formula Proof
+            </h3>
+            <button onclick="copyPairFormula()" class="text-xs text-blue-400 hover:text-blue-300 flex items-center gap-1 font-medium transition">
+              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>
+              Copy Calculation
+            </button>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-5 items-center gap-3">
+            <!-- From selector & input -->
+            <div class="md:col-span-2 space-y-2">
+              <label class="text-xs text-slate-400 font-medium">From</label>
+              <div class="flex gap-2">
+                <select id="pairFromSelect" onchange="handlePairSelectChange()" class="bg-slate-950 border border-slate-800 text-white rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-blue-500">
+                  <option value="C" selected>Celsius (°C)</option>
+                  <option value="F">Fahrenheit (°F)</option>
+                  <option value="K">Kelvin (K)</option>
+                  <option value="R">Rankine (°R)</option>
+                </select>
+                <input type="number" id="pairFromInput" oninput="handlePairInputChange(this.value)" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 font-mono text-lg font-bold text-white focus:outline-none focus:border-blue-500" value="25">
+              </div>
+            </div>
+
+            <!-- Swap Button -->
+            <div class="flex justify-center md:col-span-1 pt-4 md:pt-6">
+              <button onclick="swapPairUnits()" class="p-3 rounded-full bg-slate-800/80 hover:bg-blue-600 text-slate-300 hover:text-white border border-slate-700/80 transition shadow-lg transform active:rotate-180 duration-200" title="Swap Units">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"></path></svg>
+              </button>
+            </div>
+
+            <!-- To selector & display -->
+            <div class="md:col-span-2 space-y-2">
+              <label class="text-xs text-slate-400 font-medium">To</label>
+              <div class="flex gap-2">
+                <select id="pairToSelect" onchange="handlePairSelectChange()" class="bg-slate-950 border border-slate-800 text-white rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-blue-500">
+                  <option value="C">Celsius (°C)</option>
+                  <option value="F" selected>Fahrenheit (°F)</option>
+                  <option value="K">Kelvin (K)</option>
+                  <option value="R">Rankine (°R)</option>
+                </select>
+                <div id="pairResultBox" class="w-full bg-slate-950/80 border border-slate-800 rounded-xl px-3 py-2 font-mono text-lg font-bold text-emerald-400 flex items-center overflow-x-auto">
+                  77.00
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Live Step-by-Step Math Breakdown -->
+          <div class="mt-4 p-4 rounded-xl bg-slate-950/60 border border-slate-800/70 text-xs font-mono space-y-1">
+            <div class="text-slate-400 text-[11px] font-sans flex items-center gap-1.5 font-semibold">
+              <span class="w-2 h-2 rounded-full bg-blue-500"></span> Formula Breakdown:
+            </div>
+            <p id="formulaEquation" class="text-slate-200 font-semibold">[°F] = ([°C] × 9/5) + 32</p>
+            <p id="formulaCalculation" class="text-blue-400">77.00 °F = (25.00 × 9/5) + 32</p>
+          </div>
+        </div>
+
+      </section>
+
+      <aside class="lg:col-span-4 flex flex-col gap-6">
+
+        <!-- Visual Thermometer Gauge Card -->
+        <div class="bg-slate-900/70 border border-slate-800 p-6 rounded-2xl flex flex-col items-center justify-between relative overflow-hidden">
+          <div class="w-full flex items-center justify-between mb-4">
+            <h3 class="text-xs uppercase font-bold tracking-wider text-slate-400">Thermometer Visual</h3>
+            <span id="thermoTempLabel" class="text-xs font-mono font-bold text-slate-300">25.0°C</span>
+          </div>
+
+          <!-- Vertical Thermometer Graphic -->
+          <div class="relative w-36 h-72 flex items-center justify-center my-2">
+            <!-- Thermometer Markings -->
+            <div class="absolute left-3 h-52 flex flex-col justify-between text-[10px] font-mono text-slate-500 select-none text-right pr-2">
+              <span>100°C</span>
+              <span>75°C</span>
+              <span>50°C</span>
+              <span>25°C</span>
+              <span>0°C</span>
+              <span>-25°C</span>
+              <span>-50°C</span>
+            </div>
+
+            <!-- Glass Outer Tube -->
+            <div class="relative w-7 h-56 bg-slate-950 rounded-t-full border-2 border-slate-700/80 overflow-hidden flex flex-col justify-end p-0.5 shadow-inner">
+              <!-- Grid tick lines inside tube -->
+              <div class="absolute inset-0 flex flex-col justify-between py-2 px-1 pointer-events-none opacity-20">
+                <div class="border-b border-white w-full"></div>
+                <div class="border-b border-white w-full"></div>
+                <div class="border-b border-white w-full"></div>
+                <div class="border-b border-white w-full"></div>
+                <div class="border-b border-white w-full"></div>
+                <div class="border-b border-white w-full"></div>
+              </div>
+              <!-- Mercury Column -->
+              <div id="thermoFluid" class="mercury-fluid w-full rounded-t-full bg-gradient-to-t from-blue-500 to-rose-500" style="height: 50%;"></div>
+            </div>
+
+            <!-- Bulb at the bottom -->
+            <div id="thermoBulb" class="absolute bottom-1 w-14 h-14 rounded-full bg-gradient-to-br from-blue-500 to-rose-500 border-4 border-slate-800 shadow-lg flex items-center justify-center transition-colors duration-300">
+              <div class="w-4 h-4 rounded-full bg-white/30 blur-xs"></div>
+            </div>
+
+            <!-- Temperature feeling badges -->
+            <div class="absolute right-0 h-52 flex flex-col justify-between text-[9px] font-medium text-slate-400 select-none pl-2">
+              <span class="text-rose-400">Boiling</span>
+              <span class="text-orange-400">Very Hot</span>
+              <span class="text-amber-400">Warm</span>
+              <span class="text-emerald-400">Room</span>
+              <span class="text-cyan-400">Freezing</span>
+              <span class="text-blue-400">Extreme</span>
+            </div>
+          </div>
+
+          <!-- Quick presets list -->
+          <div class="w-full mt-4">
+            <span class="text-xs uppercase font-bold tracking-wider text-slate-400 block mb-2">Scientific Benchmarks</span>
+            <div class="grid grid-cols-2 gap-2 text-xs">
+              <button onclick="setBaseCelsius(-273.15)" class="px-2.5 py-1.5 rounded-lg bg-slate-950/80 hover:bg-slate-800 border border-slate-800/80 text-left transition flex flex-col">
+                <span class="font-medium text-slate-300">Absolute Zero</span>
+                <span class="text-[10px] text-cyan-400 font-mono">-273.15°C (0 K)</span>
+              </button>
+              <button onclick="setBaseCelsius(0)" class="px-2.5 py-1.5 rounded-lg bg-slate-950/80 hover:bg-slate-800 border border-slate-800/80 text-left transition flex flex-col">
+                <span class="font-medium text-slate-300">Freezing Point</span>
+                <span class="text-[10px] text-blue-400 font-mono">0°C (32°F)</span>
+              </button>
+              <button onclick="setBaseCelsius(21)" class="px-2.5 py-1.5 rounded-lg bg-slate-950/80 hover:bg-slate-800 border border-slate-800/80 text-left transition flex flex-col">
+                <span class="font-medium text-slate-300">Room Temp</span>
+                <span class="text-[10px] text-emerald-400 font-mono">21°C (69.8°F)</span>
+              </button>
+              <button onclick="setBaseCelsius(37)" class="px-2.5 py-1.5 rounded-lg bg-slate-950/80 hover:bg-slate-800 border border-slate-800/80 text-left transition flex flex-col">
+                <span class="font-medium text-slate-300">Body Temp</span>
+                <span class="text-[10px] text-amber-400 font-mono">37°C (98.6°F)</span>
+              </button>
+              <button onclick="setBaseCelsius(100)" class="px-2.5 py-1.5 rounded-lg bg-slate-950/80 hover:bg-slate-800 border border-slate-800/80 text-left transition flex flex-col">
+                <span class="font-medium text-slate-300">Boiling Water</span>
+                <span class="text-[10px] text-rose-400 font-mono">100°C (212°F)</span>
+              </button>
+              <button onclick="setBaseCelsius(5505)" class="px-2.5 py-1.5 rounded-lg bg-slate-950/80 hover:bg-slate-800 border border-slate-800/80 text-left transition flex flex-col">
+                <span class="font-medium text-slate-300">Sun Surface</span>
+                <span class="text-[10px] text-yellow-400 font-mono">5505°C (5778 K)</span>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Recent Conversion History Card -->
+        <div class="bg-slate-900/70 border border-slate-800 p-5 rounded-2xl flex-grow flex flex-col">
+          <div class="flex items-center justify-between mb-3">
+            <h4 class="text-xs uppercase font-bold tracking-wider text-slate-400 flex items-center gap-1.5">
+              <svg class="w-3.5 h-3.5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+              Recent Conversions
+            </h4>
+            <button onclick="clearHistory()" class="text-[11px] text-slate-500 hover:text-rose-400 transition">Clear</button>
+          </div>
+          <div id="historyList" class="flex-grow space-y-2 overflow-y-auto max-h-48 pr-1 text-xs">
+            <!-- Dynamically filled -->
+          </div>
+        </div>
+
+      </aside>
+
+    </main>
+
+    <section class="mt-2 bg-slate-900/50 border border-slate-800 rounded-2xl p-6 mb-6">
+      <h3 class="text-sm font-bold uppercase tracking-wider text-slate-300 mb-4 flex items-center gap-2">
+        <svg class="w-4 h-4 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+        Quick Reference Conversion Cheat Sheet
+      </h3>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs font-mono">
+        <div class="p-3 rounded-xl bg-slate-950/70 border border-slate-800">
+          <span class="text-slate-400 font-sans font-semibold block mb-1">Celsius to Others</span>
+          <p class="text-slate-300">°F = (°C × 9/5) + 32</p>
+          <p class="text-slate-300">K = °C + 273.15</p>
+          <p class="text-slate-300">°R = (°C + 273.15) × 9/5</p>
+        </div>
+        <div class="p-3 rounded-xl bg-slate-950/70 border border-slate-800">
+          <span class="text-slate-400 font-sans font-semibold block mb-1">Fahrenheit to Others</span>
+          <p class="text-slate-300">°C = (°F - 32) × 5/9</p>
+          <p class="text-slate-300">K = (°F - 32) × 5/9 + 273.15</p>
+          <p class="text-slate-300">°R = °F + 459.67</p>
+        </div>
+        <div class="p-3 rounded-xl bg-slate-950/70 border border-slate-800">
+          <span class="text-slate-400 font-sans font-semibold block mb-1">Kelvin to Others</span>
+          <p class="text-slate-300">°C = K - 273.15</p>
+          <p class="text-slate-300">°F = (K - 273.15) × 9/5 + 32</p>
+          <p class="text-slate-300">°R = K × 1.8</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="pt-4 pb-2 border-t border-slate-800/80 flex flex-col sm:flex-row items-center justify-between text-xs text-slate-500 gap-2">
+      <p>Precision Thermodynamic Converter &middot; Supports °C, °F, K, and °R</p>
+      <div class="flex items-center gap-4">
+        <span>Real-time bi-directional synchronization</span>
+      </div>
+    </footer>
+  </div>
+
+  <script>
+    // State Management
+    let currentCelsius = 25.0; // Core canonical base temperature in Celsius
+    let decimalPlaces = 2;
+    let soundEnabled = false;
+    let audioCtx = null;
+    let conversionHistory = [];
+
+    // Temperature bounds
+    const ABSOLUTE_ZERO_C = -273.15;
+
+    // Conversions from Base Celsius to other units
+    function celsiusToUnit(cVal, unit) {
+      switch (unit) {
+        case 'C': return cVal;
+        case 'F': return (cVal * 9 / 5) + 32;
+        case 'K': return cVal + 273.15;
+        case 'R': return (cVal + 273.15) * 9 / 5;
+        default: return cVal;
+      }
+    }
+
+    // Conversions from other units into Base Celsius
+    function unitToCelsius(val, unit) {
+      switch (unit) {
+        case 'C': return val;
+        case 'F': return (val - 32) * 5 / 9;
+        case 'K': return val - 273.15;
+        case 'R': return (val - 491.67) * 5 / 9;
+        default: return val;
+      }
+    }
+
+    // Format numbers based on active precision
+    function formatTemp(val) {
+      if (isNaN(val)) return '';
+      if (decimalPlaces === 8) {
+        // High precision without unnecessary zeroes
+        return parseFloat(val.toFixed(6)).toString();
+      }
+      return Number(val).toFixed(decimalPlaces);
+    }
+
+    // Play subtle audio pop when interacting
+    function playBeep(freq = 600) {
+      if (!soundEnabled) return;
+      try {
+        if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        if (audioCtx.state === 'suspended') audioCtx.resume();
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+        gain.gain.setValueAtTime(0.04, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 0.08);
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start();
+        osc.stop(audioCtx.currentTime + 0.08);
+      } catch (e) {
+        console.error(e);
+      }
+    }
+
+    function toggleSound() {
+      soundEnabled = !soundEnabled;
+      const icon = document.getElementById('soundIcon');
+      if (soundEnabled) {
+        icon.classList.add('text-emerald-400');
+        showToast('Sound feedback enabled');
+        playBeep(800);
+      } else {
+        icon.classList.remove('text-emerald-400');
+        showToast('Sound feedback muted');
+      }
+    }
+
+    // Precision setter
+    function setPrecision(decimals) {
+      decimalPlaces = decimals;
+      [0, 2, 4, 8].forEach(d => {
+        const btn = document.getElementById(`prec-${d}`);
+        if (!btn) return;
+        if (d === decimals) {
+          btn.className = 'px-2.5 py-1 rounded-lg transition-all bg-blue-600 text-white font-semibold shadow-sm';
+        } else {
+          btn.className = 'px-2.5 py-1 rounded-lg transition-all text-slate-400 hover:text-white';
+        }
+      });
+      syncAllUI();
+      playBeep(700);
+    }
+
+    function handleInputChange(unit, rawValue) {
+      if (rawValue === '' || isNaN(rawValue)) return;
+      const num = parseFloat(rawValue);
+      let newCelsius = unitToCelsius(num, unit);
+
+      // Guard against below absolute zero
+      if (newCelsius < ABSOLUTE_ZERO_C) {
+        newCelsius = ABSOLUTE_ZERO_C;
+      }
+
+      currentCelsius = newCelsius;
+      syncAllUI(unit); // Skip rewriting currently typed field to preserve typing flow
+      playBeep(450);
+    }
+
+    function handleSliderChange(val) {
+      currentCelsius = parseFloat(val);
+      syncAllUI();
+      playBeep(300 + (currentCelsius + 50) * 4);
+    }
+
+    function stepValue(unit, delta) {
+      const currentUnitVal = celsiusToUnit(currentCelsius, unit);
+      const stepped = currentUnitVal + delta;
+      currentCelsius = Math.max(ABSOLUTE_ZERO_C, unitToCelsius(stepped, unit));
+      syncAllUI();
+      playBeep(520);
+    }
+
+    function setBaseCelsius(cVal) {
+      currentCelsius = Math.max(ABSOLUTE_ZERO_C, cVal);
+      syncAllUI();
+      addHistory(`${formatTemp(cVal)} °C Preset`);
+      playBeep(650);
+    }
+
+    // Synchronize everything across the dashboard
+    function syncAllUI(skipUnit = null) {
+      const units = ['C', 'F', 'K', 'R'];
+      
+      units.forEach(u => {
+        if (u !== skipUnit) {
+          const val = celsiusToUnit(currentCelsius, u);
+          const el = document.getElementById(`input-${u}`);
+          if (el) el.value = formatTemp(val);
+        }
+      });
+
+      // Synchronize Slider (-50 to 150 range)
+      const slider = document.getElementById('tempSlider');
+      if (slider) {
+        slider.value = Math.min(150, Math.max(-50, currentCelsius));
+      }
+
+      // Base label in status banner
+      const baseLabel = document.getElementById('currentBaseTemp');
+      if (baseLabel) {
+        baseLabel.innerText = `${formatTemp(currentCelsius)} °C`;
+      }
+
+      // Update Thermometer Graphic
+      updateThermometer();
+
+      // Update Status Feeling
+      updateStatusDescriptor();
+
+      // Update Pair Mode
+      updatePairConverter();
+    }
+
+    function updateThermometer() {
+      const thermoFluid = document.getElementById('thermoFluid');
+      const thermoBulb = document.getElementById('thermoBulb');
+      const label = document.getElementById('thermoTempLabel');
+
+      if (label) label.innerText = `${formatTemp(currentCelsius)} °C`;
+
+      // Map -50°C to 100°C to 0% - 100% height
+      const minC = -50;
+      const maxC = 100;
+      let pct = ((currentCelsius - minC) / (maxC - minC)) * 100;
+      pct = Math.max(4, Math.min(98, pct));
+
+      if (thermoFluid) thermoFluid.style.height = `${pct}%`;
+
+      // Dynamic color gradient based on temperature
+      let color1, color2;
+      if (currentCelsius <= 0) {
+        color1 = '#38bdf8'; // Sky blue
+        color2 = '#0284c7';
+      } else if (currentCelsius <= 20) {
+        color1 = '#34d399'; // Emerald cool
+        color2 = '#0d9488';
+      } else if (currentCelsius <= 36) {
+        color1 = '#fbbf24'; // Warm amber
+        color2 = '#d97706';
+      } else if (currentCelsius <= 70) {
+        color1 = '#f97316'; // Orange hot
+        color2 = '#ea580c';
+      } else {
+        color1 = '#ef4444'; // Red boiling
+        color2 = '#b91c1c';
+      }
+
+      if (thermoFluid) thermoFluid.style.background = `linear-gradient(to top, ${color2}, ${color1})`;
+      if (thermoBulb) thermoBulb.style.background = `radial-gradient(circle, ${color1} 0%, ${color2} 100%)`;
+    }
+
+    function updateStatusDescriptor() {
+      const title = document.getElementById('statusTitle');
+      const desc = document.getElementById('statusDesc');
+      const tag = document.getElementById('statusTag');
+      const icon = document.getElementById('statusIconBg');
+
+      const c = currentCelsius;
+
+      if (c <= -270) {
+        title.innerText = "Absolute Zero Region";
+        desc.innerText = "All molecular motion essentially ceases. Coldest possible state.";
+        tag.innerText = "Absolute Cryo";
+        tag.className = "text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full bg-indigo-500/20 text-indigo-300 border border-indigo-500/30";
+        icon.innerText = "🧊";
+      } else if (c <= -20) {
+        title.innerText = "Deep Sub-Zero Freeze";
+        desc.innerText = "Polar and deep arctic conditions. Frostbite hazard within minutes.";
+        tag.innerText = "Extreme Freeze";
+        tag.className = "text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full bg-cyan-500/20 text-cyan-300 border border-cyan-500/30";
+        icon.innerText = "❄️";
+      } else if (c <= 0) {
+        title.innerText = "Freezing Point of Water";
+        desc.innerText = "Water solidifies into ice crystals at normal atmospheric pressure (1 atm).";
+        tag.innerText = "Freezing";
+        tag.className = "text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full bg-blue-500/20 text-blue-300 border border-blue-500/30";
+        icon.innerText = "🌨️";
+      } else if (c < 18) {
+        title.innerText = "Cool & Crisp";
+        desc.innerText = "Brisk autumn air; light jackets recommended.";
+        tag.innerText = "Cool";
+        tag.className = "text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full bg-teal-500/20 text-teal-300 border border-teal-500/30";
+        icon.innerText = "🧥";
+      } else if (c <= 25) {
+        title.innerText = "Comfortable Room Climate";
+        desc.innerText = "Standard room temperature (20°C - 25°C) optimal for regular daily comfort.";
+        tag.innerText = "Mild";
+        tag.className = "text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30";
+        icon.innerText = "🌿";
+      } else if (c <= 38) {
+        title.innerText = "Warm / Normal Human Body";
+        desc.innerText = "Average human basal metabolic core temperature is approximately 37.0°C (98.6°F).";
+        tag.innerText = "Warm";
+        tag.className = "text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/30";
+        icon.innerText = "☀️";
+      } else if (c < 100) {
+        title.innerText = "Extreme Ambient Heat";
+        desc.innerText = "Sahara peak desert heat or hot Finnish sauna temperatures.";
+        tag.innerText = "Danger Heat";
+        tag.className = "text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full bg-orange-500/20 text-orange-300 border border-orange-500/30";
+        icon.innerText = "🔥";
+      } else if (c === 100) {
+        title.innerText = "Water Boiling Point";
+        desc.innerText = "Water converts into steam vapor at 1 standard atmosphere pressure.";
+        tag.innerText = "Boiling Point";
+        tag.className = "text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full bg-rose-500/20 text-rose-300 border border-rose-500/30";
+        icon.innerText = "♨️";
+      } else {
+        title.innerText = "Superheated State";
+        desc.innerText = "High-energy thermodynamic conditions exceeding water's vapor equilibrium.";
+        tag.innerText = "Extreme";
+        tag.className = "text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full bg-rose-600/30 text-rose-300 border border-rose-500/40";
+        icon.innerText = "⚡";
+      }
+    }
+
+    function updatePairConverter() {
+      const fromUnit = document.getElementById('pairFromSelect').value;
+      const toUnit = document.getElementById('pairToSelect').value;
+      const fromInput = document.getElementById('pairFromInput');
+      const resultBox = document.getElementById('pairResultBox');
+
+      const valFrom = celsiusToUnit(currentCelsius, fromUnit);
+      if (document.activeElement !== fromInput) {
+        fromInput.value = formatTemp(valFrom);
+      }
+
+      const valTo = celsiusToUnit(currentCelsius, toUnit);
+      resultBox.innerText = `${formatTemp(valTo)} °${toUnit === 'K' ? '' : ''}${toUnit}`;
+
+      // Build Math Explanation
+      explainFormula(fromUnit, toUnit, valFrom, valTo);
+    }
+
+    function handlePairInputChange(val) {
+      if (val === '' || isNaN(val)) return;
+      const fromUnit = document.getElementById('pairFromSelect').value;
+      const num = parseFloat(val);
+      currentCelsius = Math.max(ABSOLUTE_ZERO_C, unitToCelsius(num, fromUnit));
+      syncAllUI();
+    }
+
+    function handlePairSelectChange() {
+      updatePairConverter();
+      playBeep(550);
+    }
+
+    function swapPairUnits() {
+      const fromSelect = document.getElementById('pairFromSelect');
+      const toSelect = document.getElementById('pairToSelect');
+      const temp = fromSelect.value;
+      fromSelect.value = toSelect.value;
+      toSelect.value = temp;
+      updatePairConverter();
+      playBeep(620);
+    }
+
+    function explainFormula(from, to, fromVal, toVal) {
+      const eqEl = document.getElementById('formulaEquation');
+      const calcEl = document.getElementById('formulaCalculation');
+
+      let eq = "";
+      let calc = "";
+
+      const fV = formatTemp(fromVal);
+      const tV = formatTemp(toVal);
+
+      if (from === to) {
+        eq = `[${to}] = [${from}] (Identical scale)`;
+        calc = `${tV} ${to} = ${fV} ${from}`;
+      } else if (from === 'C' && to === 'F') {
+        eq = `[°F] = ([°C] × 9/5) + 32`;
+        calc = `${tV} °F = (${fV} × 1.8) + 32`;
+      } else if (from === 'F' && to === 'C') {
+        eq = `[°C] = ([°F] - 32) × 5/9`;
+        calc = `${tV} °C = (${fV} - 32) × 0.5556`;
+      } else if (from === 'C' && to === 'K') {
+        eq = `[K] = [°C] + 273.15`;
+        calc = `${tV} K = ${fV} + 273.15`;
+      } else if (from === 'K' && to === 'C') {
+        eq = `[°C] = [K] - 273.15`;
+        calc = `${tV} °C = ${fV} - 273.15`;
+      } else if (from === 'F' && to === 'K') {
+        eq = `[K] = ([°F] - 32) × 5/9 + 273.15`;
+        calc = `${tV} K = (${fV} - 32) × 5/9 + 273.15`;
+      } else if (from === 'K' && to === 'F') {
+        eq = `[°F] = ([K] - 273.15) × 9/5 + 32`;
+        calc = `${tV} °F = (${fV} - 273.15) × 1.8 + 32`;
+      } else if (from === 'C' && to === 'R') {
+        eq = `[°R] = ([°C] + 273.15) × 9/5`;
+        calc = `${tV} °R = (${fV} + 273.15) × 1.8`;
+      } else if (from === 'R' && to === 'C') {
+        eq = `[°C] = ([°R] - 491.67) × 5/9`;
+        calc = `${tV} °C = (${fV} - 491.67) × 5/9`;
+      } else if (from === 'F' && to === 'R') {
+        eq = `[°R] = [°F] + 459.67`;
+        calc = `${tV} °R = ${fV} + 459.67`;
+      } else if (from === 'R' && to === 'F') {
+        eq = `[°F] = [°R] - 459.67`;
+        calc = `${tV} °F = ${fV} - 459.67`;
+      } else if (from === 'K' && to === 'R') {
+        eq = `[°R] = [K] × 1.8`;
+        calc = `${tV} °R = ${fV} × 1.8`;
+      } else if (from === 'R' && to === 'K') {
+        eq = `[K] = [°R] × 5/9`;
+        calc = `${tV} K = ${fV} × 5/9`;
+      }
+
+      if (eqEl) eqEl.innerText = eq;
+      if (calcEl) calcEl.innerText = calc;
+    }
+
+    function copyUnit(unit) {
+      const val = celsiusToUnit(currentCelsius, unit);
+      const text = `${formatTemp(val)} °${unit === 'K' ? '' : ''}${unit}`;
+      copyToClipboard(text);
+      showToast(`Copied ${text}`);
+      addHistory(`Copied ${text}`);
+    }
+
+    function copyPairFormula() {
+      const eq = document.getElementById('formulaEquation').innerText;
+      const calc = document.getElementById('formulaCalculation').innerText;
+      const text = `${eq} → ${calc}`;
+      copyToClipboard(text);
+      showToast('Formula & result copied!');
+    }
+
+    function copyToClipboard(text) {
+      const tempInput = document.createElement("textarea");
+      tempInput.value = text;
+      document.body.appendChild(tempInput);
+      tempInput.select();
+      try {
+        document.execCommand('copy');
+      } catch (err) {
+        console.error('Copy fallback error:', err);
+      }
+      document.body.removeChild(tempInput);
+    }
+
+    function showToast(message) {
+      const toast = document.getElementById('toast');
+      const msg = document.getElementById('toastMsg');
+      if (!toast || !msg) return;
+      msg.innerText = message;
+      toast.classList.remove('translate-y-[-150%]', 'opacity-0');
+      toast.classList.add('translate-y-0', 'opacity-100');
+      setTimeout(() => {
+        toast.classList.add('translate-y-[-150%]', 'opacity-0');
+        toast.classList.remove('translate-y-0', 'opacity-100');
+      }, 2200);
+    }
+
+    function addHistory(label) {
+      const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+      conversionHistory.unshift({ label, time });
+      if (conversionHistory.length > 8) conversionHistory.pop();
+      renderHistory();
+    }
+
+    function clearHistory() {
+      conversionHistory = [];
+      renderHistory();
+      showToast("History cleared");
+    }
+
+    function renderHistory() {
+      const container = document.getElementById('historyList');
+      if (!container) return;
+      if (conversionHistory.length === 0) {
+        container.innerHTML = `<div class="text-slate-500 text-center py-6 text-xs italic">No conversions yet</div>`;
+        return;
+      }
+      container.innerHTML = conversionHistory.map(item => `
+        <div class="flex items-center justify-between p-2 rounded-lg bg-slate-950/70 border border-slate-800/80">
+          <span class="text-slate-300 font-mono font-medium">${item.label}</span>
+          <span class="text-[10px] text-slate-500 font-mono">${item.time}</span>
+        </div>
+      `).join('');
+    }
+
+    // Initialize application on page load
+    window.addEventListener('DOMContentLoaded', () => {
+      syncAllUI();
+      addHistory('Initial: 25.00 °C (77.00 °F)');
+    });
+  </script>
+</body>
+</html>

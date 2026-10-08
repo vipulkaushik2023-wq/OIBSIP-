@@ -1,0 +1,487 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AEVUM | Timeless Menswear</title>
+  <meta name="description" content="Aevum – Premium menswear by Vipul Kaushik. Timeless shirts, coats, trousers and more.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0a1424;
+      --bg-soft: #15191e;
+      --text: #bd7d1d;
+      --text-muted: #c28b39;
+      --accent: #dd9c24;
+      --accent-light: #1ab042;
+      --border: #1c2d45;
+      --white: #d967b1;
+      --card: #02020e;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: 'Inter', system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      overflow-x: hidden;
+    }
+    h1, h2, h3, h4 {
+      font-family: 'Playfair Display', Georgia, serif;
+      font-weight: 500;
+      letter-spacing: 0.02em;
+    }
+    a { color: inherit; text-decoration: none; }
+    img { max-width: 100%; display: block; }
+
+    /* Navbar */
+    .navbar {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 1000;
+      background: rgba(10, 20, 36, 0.88);
+      backdrop-filter: blur(14px);
+      border-bottom: 1px solid var(--border);
+      transition: all 0.3s ease;
+    }
+    .navbar.scrolled {
+      background: rgba(10, 20, 36, 0.97);
+      box-shadow: 0 4px 30px rgba(0,0,0,0.4);
+    }
+    .nav-inner {
+      max-width: 1280px; margin: 0 auto; padding: 1rem 2rem;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .logo {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.65rem; font-weight: 600; letter-spacing: 0.18em; color: var(--text);
+    }
+    .logo span { color: var(--accent); }
+    .nav-links { display: flex; gap: 2.5rem; list-style: none; }
+    .nav-links a {
+      font-size: 0.82rem; font-weight: 500; letter-spacing: 0.1em;
+      text-transform: uppercase; color: var(--text-muted); transition: color 0.2s;
+    }
+    .nav-links a:hover { color: var(--accent); }
+    .nav-cta {
+      font-size: 0.78rem; font-weight: 500; letter-spacing: 0.1em; text-transform: uppercase;
+      padding: 0.6rem 1.4rem; border: 1px solid var(--accent); color: var(--accent); transition: all 0.25s;
+    }
+    .nav-cta:hover { background: var(--accent); color: var(--bg); }
+    .menu-toggle {
+      display: none; background: none; border: none; color: var(--text); font-size: 1.5rem; cursor: pointer;
+    }
+
+    /* Hero */
+    .hero {
+      position: relative; height: 100vh; min-height: 680px;
+      display: flex; align-items: center; justify-content: center; overflow: hidden;
+    }
+    .hero-bg {
+      position: absolute; inset: 0;
+      background: url('aevum-images/store2.jpg') center/cover no-repeat;
+      filter: brightness(0.42); transform: scale(1.04);
+    }
+    .hero-content {
+      position: relative; z-index: 2; text-align: center; padding: 0 1.5rem; max-width: 900px;
+    }
+    .hero-eyebrow {
+      font-size: 0.78rem; letter-spacing: 0.32em; text-transform: uppercase;
+      color: var(--accent); margin-bottom: 1.3rem; font-weight: 500;
+    }
+    .hero h1 {
+      font-size: clamp(3.2rem, 9vw, 5.8rem); line-height: 1.05; margin-bottom: 1.3rem; color: var(--white);
+    }
+    .hero p {
+      font-size: 1.15rem; color: rgba(245,240,230,0.85); max-width: 520px;
+      margin: 0 auto 2.6rem; font-weight: 300;
+    }
+    .hero-btns { display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; }
+    .btn {
+      display: inline-flex; align-items: center; justify-content: center;
+      padding: 0.95rem 2.1rem; font-size: 0.82rem; font-weight: 500;
+      letter-spacing: 0.12em; text-transform: uppercase; transition: all 0.25s;
+      cursor: pointer; border: none;
+    }
+    .btn-primary { background: var(--accent); color: var(--bg); }
+    .btn-primary:hover { background: var(--accent-dark); }
+    .btn-outline {
+      background: transparent; border: 1px solid rgba(255,255,255,0.5); color: var(--white);
+    }
+    .btn-outline:hover {
+      border-color: var(--accent); color: var(--accent); background: rgba(255,255,255,0.06);
+    }
+
+    /* Common */
+    section { padding: 6rem 0; }
+    .container { max-width: 1200px; margin: 0 auto; padding: 0 2rem; }
+    .section-header { text-align: center; margin-bottom: 3.5rem; }
+    .section-header .eyebrow {
+      font-size: 0.72rem; letter-spacing: 0.28em; text-transform: uppercase;
+      color: var(--accent); margin-bottom: 0.8rem; font-weight: 500;
+    }
+    .section-header h2 { font-size: clamp(2rem, 4vw, 2.9rem); margin-bottom: 1rem; }
+    .section-header p { color: var(--text-muted); max-width: 560px; margin: 0 auto; font-size: 1.05rem; }
+
+    /* About */
+    .about { background: var(--bg-soft); }
+    .about-grid {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 4rem; align-items: center;
+    }
+    .about-images { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+    .about-images img { width: 100%; height: 260px; object-fit: cover; border-radius: 4px; }
+    .about-images img:first-child { grid-row: span 2; height: 100%; min-height: 540px; }
+    .about-content h3 { font-size: 1.75rem; margin-bottom: 1.2rem; }
+    .about-content p { color: var(--text-muted); margin-bottom: 1.15rem; font-size: 1.02rem; }
+    .founder { margin-top: 2.2rem; padding-top: 1.8rem; border-top: 1px solid var(--border); }
+    .founder-label {
+      font-size: 0.72rem; letter-spacing: 0.18em; text-transform: uppercase;
+      color: var(--accent); margin-bottom: 0.5rem;
+    }
+    .founder h4 { font-size: 1.35rem; margin-bottom: 0.5rem; }
+
+    /* Collection */
+    .collection-grid {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(270px, 1fr)); gap: 1.5rem;
+    }
+    .product-card {
+      background: var(--card); border-radius: 6px; overflow: hidden;
+      transition: transform 0.3s, box-shadow 0.3s; border: 1px solid var(--border);
+      box-shadow: 0 4px 20px rgba(0,0,0,0.25);
+    }
+    .product-card:hover { transform: translateY(-6px); box-shadow: 0 18px 40px rgba(0,0,0,0.45); }
+    .product-card img { width: 100%; height: 320px; object-fit: cover; object-position: center top; }
+    .product-info { padding: 1.35rem 1.25rem 1.5rem; }
+    .product-info h3 { font-size: 1.15rem; margin-bottom: 0.4rem; }
+    .product-info p { font-size: 0.9rem; color: var(--text-muted); }
+
+    /* Featured */
+    .featured { margin-top: 4rem; }
+    .featured-grid { display: grid; grid-template-columns: 1.25fr 1fr; gap: 1.5rem; }
+    .featured-main { position: relative; border-radius: 6px; overflow: hidden; height: 500px; }
+    .featured-main img { width: 100%; height: 100%; object-fit: cover; }
+    .featured-side { display: flex; flex-direction: column; gap: 1.5rem; }
+    .featured-side .product-card { flex: 1; }
+    .featured-side img { height: 230px; }
+
+    /* Store */
+    .store { background: var(--bg-soft); }
+    .store-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
+    .store-grid img { width: 100%; height: 360px; object-fit: cover; border-radius: 6px; }
+    .store-grid .full { grid-column: 1 / -1; height: 400px; }
+
+    /* Contact */
+    .contact-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 4rem; align-items: start; }
+    .contact-info h3 { font-size: 1.55rem; margin-bottom: 1.6rem; }
+    .contact-item { display: flex; gap: 1.2rem; margin-bottom: 1.7rem; }
+    .contact-item .icon {
+      width: 44px; height: 44px; border: 1px solid var(--border); border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      color: var(--accent); flex-shrink: 0; font-size: 1.1rem;
+    }
+    .contact-item h4 {
+      font-size: 0.95rem; margin-bottom: 0.25rem; font-family: 'Inter', sans-serif; font-weight: 600;
+    }
+    .contact-item p, .contact-item a { color: var(--text-muted); font-size: 0.95rem; }
+    .contact-item a:hover { color: var(--accent); }
+
+    .contact-form {
+      background: var(--card); padding: 2.2rem; border-radius: 8px;
+      border: 1px solid var(--border); box-shadow: 0 8px 30px rgba(0,0,0,0.3);
+    }
+    .contact-form h3 { font-size: 1.4rem; margin-bottom: 1.5rem; }
+    .form-group { margin-bottom: 1.2rem; }
+    .form-group label {
+      display: block; font-size: 0.78rem; letter-spacing: 0.06em;
+      text-transform: uppercase; color: var(--text-muted); margin-bottom: 0.4rem;
+    }
+    .form-group input, .form-group textarea {
+      width: 100%; padding: 0.85rem 1rem; background: var(--bg);
+      border: 1px solid var(--border); border-radius: 4px; color: var(--text);
+      font-family: inherit; font-size: 0.95rem; transition: border-color 0.2s;
+    }
+    .form-group input:focus, .form-group textarea:focus {
+      outline: none; border-color: var(--accent);
+    }
+    .form-group textarea { resize: vertical; min-height: 120px; }
+    .form-submit { width: 100%; margin-top: 0.5rem; }
+
+    /* Footer */
+    footer {
+      background: #070e1a; border-top: 1px solid var(--border); padding: 3.5rem 0 2rem;
+    }
+    .footer-inner {
+      max-width: 1200px; margin: 0 auto; padding: 0 2rem;
+      display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1.5rem;
+    }
+    .footer-logo { font-family: 'Playfair Display', serif; font-size: 1.4rem; letter-spacing: 0.15em; }
+    .footer-logo span { color: var(--accent); }
+    .footer-links { display: flex; gap: 2rem; list-style: none; }
+    .footer-links a { font-size: 0.85rem; color: var(--text-muted); transition: color 0.2s; }
+    .footer-links a:hover { color: var(--accent); }
+    .footer-copy {
+      width: 100%; text-align: center; margin-top: 2.5rem; padding-top: 1.8rem;
+      border-top: 1px solid var(--border); font-size: 0.85rem; color: var(--text-muted);
+    }
+
+    /* Responsive */
+    @media (max-width: 900px) {
+      .nav-links { display: none; }
+      .menu-toggle { display: block; }
+      .about-grid, .featured-grid, .store-grid, .contact-grid { grid-template-columns: 1fr; }
+      .about-images img:first-child { grid-row: auto; min-height: 300px; height: 300px; }
+      .featured-main { height: 340px; }
+      .store-grid img { height: 260px; }
+      .store-grid .full { height: 280px; }
+    }
+    @media (max-width: 600px) {
+      .nav-inner { padding: 0.9rem 1.2rem; }
+      section { padding: 4rem 0; }
+      .container { padding: 0 1.2rem; }
+      .hero p { font-size: 1rem; }
+      .product-card img { height: 260px; }
+    }
+  </style>
+</head>
+<body>
+  <!-- Navbar -->
+  <nav class="navbar" id="navbar">
+    <div class="nav-inner">
+      <a href="#" class="logo">AE<span>VUM</span></a>
+      <ul class="nav-links">
+        <li><a href="#about">About</a></li>
+        <li><a href="#collection">Collection</a></li>
+        <li><a href="#store">Store</a></li>
+        <li><a href="#contact">Contact</a></li>
+      </ul>
+      <a href="#contact" class="nav-cta">Get in Touch</a>
+      <button class="menu-toggle" aria-label="Menu" id="menuToggle">☰</button>
+    </div>
+  </nav>
+
+  <!-- Hero -->
+  <header class="hero">
+    <div class="hero-bg"></div>
+    <div class="hero-content">
+      <p class="hero-eyebrow">Premium Menswear</p>
+      <h1>AEVUM</h1>
+      <p>Timeless elegance crafted for the modern gentleman. Refined silhouettes, exceptional fabrics, enduring style.</p>
+      <div class="hero-btns">
+        <a href="#collection" class="btn btn-primary">Explore Collection</a>
+        <a href="#about" class="btn btn-outline">Our Story</a>
+      </div>
+    </div>
+  </header>
+
+  <!-- About -->
+  <section class="about" id="about">
+    <div class="container">
+      <div class="section-header">
+        <p class="eyebrow">Who We Are</p>
+        <h2>The Aevum Story</h2>
+        <p>Rooted in the pursuit of lasting quality and understated luxury.</p>
+      </div>
+      <div class="about-grid">
+        <div class="about-images">
+          <img src="Gemini_Generated_Image_clv328clv328clv3.png " width="50" height="50" alt="Aevum wool coat on display">
+          <img src="Gemini_Generated_Image_fkgda0fkgda0fkgd.png" width="100" height="100" alt="Aevum camel overcoat on display">
+          <img src="Gemini_Generated_Image_gntg3mgntg3mgntg.png" width="100" height="100" alt="Aevum white dress shirt on display">
+        </div>
+        <div class="about-content">
+          <h3>Crafted for those who value the enduring over the fleeting.</h3>
+          <p>Aevum is a menswear brand dedicated to refined essentials — crisp shirts, impeccably tailored outerwear, and thoughtfully designed trousers that form the foundation of a sophisticated wardrobe.</p>
+          <p>Every piece is designed with attention to detail, premium materials, and a quiet confidence that speaks for itself. From the boardroom to the weekend, Aevum pieces are made to last and to elevate.</p>
+          <div class="founder">
+            <p class="founder-label">Founder</p>
+            <h4>Vipul Kaushik</h4>
+            <p>I’m studying BSc Information Technology at Baba Saheb Bhimrao University, Lucknow. Aevum is my own brand — born from a passion for timeless style and a desire to create clothing that feels both modern and enduring.</p>
+            <p>Through this platform I aim to share the Aevum vision and connect with people who appreciate quality menswear.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Collection -->
+  <section class="collection" id="collection">
+    <div class="container">
+      <div class="section-header">
+        <p class="eyebrow">The Collection</p>
+        <h2>Signature Pieces</h2>
+        <p>Essential garments designed for everyday elegance and lasting wear.</p>
+      </div>
+      <div class="collection-grid">
+        <article class="product-card">
+          <img src="White luxaries shirt.jpg" width="100" height="100" alt="Aevum white dress shirt on display">
+          <div class="product-info" > 
+            <h3>The Classic White Shirt</h3>
+            <p>Crisp cotton, precise cut, and a refined collar — the cornerstone of every wardrobe.</p>
+          </div>
+        </article>
+        <article class="product-card">
+          <img src="Gemini_Generated_Image_qwdgeqwdgeqwdgeq.png" width="100" height="100" alt="Aevum camel overcoat on display">
+          <div class="product-info">
+            <h3>Camel Overcoat</h3>
+            <p>Luxurious wool blend outerwear with clean lines and a timeless silhouette.</p>
+          </div>
+        </article>
+        <article class="product-card">
+          <img src="Gemini_Generated_Image_tjmg4ctjmg4ctjmg.png" width="100" height="100" alt="Aevum ivory tailored coat on display">
+          <div class="product-info">
+            <h3>Ivory Tailored Coat</h3>
+            <p>Understated elegance in a soft ivory tone — perfect for elevated occasions.</p>
+          </div>
+        </article>
+        <article class="product-card">
+          <img src="Gemini_Generated_Image_vbuh1svbuh1svbuh.png" width="100" height="100" alt="Aevum textured wool trousers on display">
+          <div class="product-info">
+            <h3>Textured Wool Trousers</h3>
+            <p>Rich brown fabric with refined detailing and a clean, modern fit.</p>
+          </div>
+        </article>
+      </div>
+      <div class="featured">
+        <div class="featured-grid">
+          <div class="featured-main">
+            <img src="shirtimage.png" width="100" height="100" alt="Aevum white dress shirt on display">
+          </div>es/product-shirt-colla
+          <div class="featured-side">
+            <article class="product-card">
+              <img src="image1.png" width="100" height="100" alt="Aevum deep green cable knit shawl collar sweater">
+              <div class="product-info">
+                <h3>Aevum brand promotion</h3>
+                <p>Understated elegance in a soft ivory tone — perfect for elevated occasions.</p>
+              </div>
+            </article>
+            <article class="product-card">
+              <img src="greenpaint_trouser.jpg" width="100" height="50" alt="Aevum tailored wool coat in camel">
+              <div class="product-info">
+                <h3>Essential Trousers</h3>
+                <p>Clean lines and versatile neutrals.</p>
+              </div>
+            </article>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Store -->
+  <section class="store" id="store">
+    <div class="container">
+      <div class="section-header">
+        <p class="eyebrow">Experience</p>
+        <h2>The Aevum Space</h2>
+        <p>An invitation into a world of calm, curated menswear and thoughtful design.</p>
+      </div>
+      <div class="store-grid">
+        <img src="image_369515f1.jpg" alt="Aevum boutique interior with logo wall">
+        <img src="image_6f1064a7.jpg" alt="Aevum flagship store with mannequin and racks">
+        <img class="full" src="image_bcaab69a.jpg" width="100" height="200" alt="Aevum store atmosphere">
+      </div>
+    </div>
+  </section>
+
+  <!-- Contact -->
+  <section class="contact" id="contact">
+    <div class="container">
+      <div class="section-header">
+        <p class="eyebrow">Connect</p>
+        <h2>Get in Touch</h2>
+        <p>Whether you’d like to learn more about Aevum, place an enquiry, or simply say hello — I’d love to hear from you.</p>
+      </div>
+      <div class="contact-grid">
+        <div class="contact-info">
+          <h3>Contact Details</h3>
+          <div class="contact-item">
+            <div class="icon">✉</div>
+            <div>
+              <h4>Email</h4>
+              <a href="mailto:vipulkaushik2023@gmail.com">vipulkaushik2023@gmail.com</a>
+            </div>
+          </div>
+          <div class="contact-item">
+            <div class="icon">☎</div>
+            <div>
+              <h4>Phone</h4>
+              <a href="tel:+918858200413">+91 88582 00413</a>
+            </div>
+          </div>
+          <div class="contact-item">
+            <div class="icon">⌖</div>
+            <div>
+              <h4>Location</h4>
+              <p>Sultanpur, Uttar Pradesh, India</p>
+            </div>
+          </div>
+          <div class="contact-item">
+            <div class="icon">✦</div>
+            <div>
+              <h4>Founder</h4>
+              <p>Vipul Kaushik<br>BSc Information Technology<br>Baba Saheb Bhimrao University, Lucknow</p>
+            </div>
+          </div>
+        </div>
+        <div class="contact-form">
+          <h3>Send a Message</h3>
+          <form action="mailto:vipulkaushik2023@gmail.com" method="POST" enctype="text/plain">
+            <div class="form-group">
+              <label for="name">Name</label>
+              <input type="text" id="name" name="name" required placeholder="Your name">
+            </div>
+            <div class="form-group">
+              <label for="email">Email</label>
+              <input type="email" id="email" name="email" required placeholder="your.email@example.com">
+            </div>
+            <div class="form-group">
+              <label for="message">Message</label>
+              <textarea id="message" name="message" required placeholder="How can I help you?"></textarea>
+            </div>
+            <button type="submit" class="btn btn-primary form-submit">Send Message</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer>
+    <div class="footer-inner">
+      <div class="footer-logo">AE<span>VUM</span></div>
+      <ul class="footer-links">
+        <li><a href="#about">About</a></li>
+        <li><a href="#collection">Collection</a></li>
+        <li><a href="#store">Store</a></li>
+        <li><a href="#contact">Contact</a></li>
+      </ul>
+    </div>
+    <p class="footer-copy">© 2025 Aevum. Founded by Vipul Kaushik. All rights reserved.</p>
+  </footer>
+
+  <script>
+    const navbar = document.getElementById('navbar');
+    window.addEventListener('scroll', () => {
+      navbar.classList.toggle('scrolled', window.scrollY > 50);
+    });
+    const toggle = document.getElementById('menuToggle');
+    const links = document.querySelector('.nav-links');
+    toggle.addEventListener('click', () => {
+      if (links.style.display === 'flex') {
+        links.style.display = 'none';
+      } else {
+        links.style.display = 'flex';
+        links.style.flexDirection = 'column';
+        links.style.position = 'absolute';
+        links.style.top = '100%';
+        links.style.left = '0';
+        links.style.right = '0';
+        links.style.background = 'rgba(10,20,36,0.98)';
+        links.style.padding = '1.5rem';
+        links.style.gap = '1.2rem';
+        links.style.borderBottom = '1px solid var(--border)';
+      }
+    });
+  </script>
+</body>
+</html>

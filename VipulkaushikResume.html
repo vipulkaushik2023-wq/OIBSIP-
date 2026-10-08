@@ -1,0 +1,548 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Vipul Kaushik | Resume</title>
+  <style>
+    h1 {
+      margin-bottom: 10px;
+    }
+
+    :root {
+      --navy: #0a1628;
+      --cyan: #00b4d8;
+      --dark-cyan: #0077b6;
+      --text-dark: #1a1a2e;
+      --text-muted: #4a5568;
+      --text-light: #718096;
+      --border: #e2e8f0;
+      --chip-bg: #e0f7fa;
+      --sidebar-width: 280px;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      background: #e8eef5;
+      color: var(--text-dark);
+      line-height: 1.5;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      padding: 32px 16px;
+    }
+
+    /* ========== PAGE CONTAINER (A4-like) ========== */
+    .resume {
+      width: 100%;
+      max-width: 900px;
+      background: #ffffff;
+      display: flex;
+      box-shadow: 0 20px 60px rgba(10, 22, 40, 0.18);
+      border-radius: 6px;
+      overflow: hidden;
+      min-height: 1100px;
+    }
+
+    /* ========== LEFT SIDEBAR ========== */
+    .sidebar {
+      width: var(--sidebar-width);
+      background: var(--navy);
+      color: #e2e8f0;
+      padding: 0 0 32px;
+      flex-shrink: 0;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+    }
+
+    .sidebar-top-accent {
+      height: 8px;
+      background: var(--cyan);
+      width: 100%;
+    }
+
+    .profile {
+      text-align: center;
+      padding: 28px 20px 18px;
+    }
+
+    .photo-ring {
+      width: 130px;
+      height: 130px;
+      border-radius: 50%;
+      background: #fff;
+      margin: 0 auto 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 0 0 3px var(--cyan);
+    }
+
+    .photo-ring img {
+      width: 122px;
+      height: 122px;
+      border-radius: 50%;
+      object-fit: cover;
+      object-position: center top;
+    }
+
+    .profile h1 {
+      font-size: 1.25rem;
+      font-weight: 800;
+      color: #fff;
+      letter-spacing: -0.3px;
+      margin-bottom: 2px;
+    }
+
+    .profile .title {
+      font-size: 0.8rem;
+      color: var(--cyan);
+      font-weight: 500;
+    }
+
+    /* Sidebar sections */
+    .sidebar-section {
+      padding: 0 22px;
+      margin-top: 22px;
+    }
+
+    .sidebar-section h3 {
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 1.2px;
+      color: var(--cyan);
+      text-transform: uppercase;
+      margin-bottom: 4px;
+      border-bottom: 1.5px solid var(--cyan);
+      display: inline-block;
+      padding-bottom: 2px;
+    }
+
+    .contact-item {
+      margin-top: 12px;
+    }
+
+    .contact-item label {
+      display: block;
+      font-size: 0.68rem;
+      font-weight: 700;
+      color: var(--cyan);
+      margin-bottom: 1px;
+    }
+
+    .contact-item span {
+      font-size: 0.78rem;
+      color: #cbd5e1;
+      word-break: break-all;
+    }
+
+    /* Skills bars */
+    .skill-item {
+      margin-top: 12px;
+    }
+
+    .skill-item .skill-name {
+      font-size: 0.75rem;
+      color: #e2e8f0;
+      margin-bottom: 4px;
+    }
+
+    .progress-track {
+      height: 5px;
+      background: #1e3a5f;
+      border-radius: 99px;
+      overflow: hidden;
+    }
+
+    .progress-bar {
+      height: 100%;
+      background: linear-gradient(90deg, var(--cyan), #48cae4);
+      border-radius: 99px;
+    }
+
+    /* Education in sidebar */
+    .edu-block {
+      margin-top: 12px;
+    }
+
+    .edu-block strong {
+      display: block;
+      font-size: 0.8rem;
+      color: #fff;
+      font-weight: 700;
+    }
+
+    .edu-block span {
+      display: block;
+      font-size: 0.72rem;
+      color: #94a3b8;
+      line-height: 1.4;
+    }
+
+    .edu-block .status {
+      color: var(--cyan);
+      font-size: 0.7rem;
+      margin-top: 3px;
+    }
+
+    .lang-text {
+      margin-top: 10px;
+      font-size: 0.8rem;
+      color: #e2e8f0;
+    }
+
+    /* ========== MAIN CONTENT ========== */
+    .main {
+      flex: 1;
+      padding: 32px 36px 28px;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .section {
+      margin-bottom: 22px;
+    }
+
+    .section-title {
+      font-size: 1.05rem;
+      font-weight: 800;
+      color: var(--navy);
+      margin-bottom: 6px;
+      position: relative;
+      display: inline-block;
+    }
+
+    .section-title::after {
+      content: '';
+      display: block;
+      width: 42px;
+      height: 3px;
+      background: var(--cyan);
+      margin-top: 3px;
+      border-radius: 2px;
+    }
+
+    .summary-text {
+      font-size: 0.82rem;
+      color: var(--text-muted);
+      line-height: 1.65;
+      margin-top: 10px;
+    }
+
+    /* Competencies */
+    .comp-list {
+      list-style: none;
+      margin-top: 12px;
+    }
+
+    .comp-list li {
+      margin-bottom: 12px;
+      padding-left: 16px;
+      position: relative;
+    }
+
+    .comp-list li::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 6px;
+      width: 7px;
+      height: 7px;
+      background: var(--cyan);
+      border-radius: 50%;
+    }
+
+    .comp-list strong {
+      display: block;
+      font-size: 0.85rem;
+      color: var(--navy);
+      font-weight: 700;
+    }
+
+    .comp-list span {
+      font-size: 0.78rem;
+      color: var(--text-muted);
+    }
+
+    /* Projects */
+    .project {
+      margin-top: 14px;
+    }
+
+    .project h4 {
+      font-size: 0.9rem;
+      font-weight: 700;
+      color: var(--navy);
+    }
+
+    .project .tags {
+      font-size: 0.72rem;
+      color: var(--cyan);
+      font-weight: 500;
+      margin: 2px 0 4px;
+    }
+
+    .project p {
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      line-height: 1.55;
+    }
+
+    /* Academic chips */
+    .chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 12px;
+    }
+
+    .chip {
+      background: var(--chip-bg);
+      color: var(--dark-cyan);
+      font-size: 0.72rem;
+      font-weight: 500;
+      padding: 5px 12px;
+      border-radius: 6px;
+    }
+
+    /* Availability banner */
+    .availability {
+      margin-top: auto;
+      background: #f0f9ff;
+      border: 1.5px solid var(--cyan);
+      border-radius: 8px;
+      padding: 12px 16px;
+    }
+
+    .availability strong {
+      display: block;
+      font-size: 0.8rem;
+      color: var(--navy);
+      font-weight: 700;
+    }
+
+    .availability span {
+      font-size: 0.72rem;
+      color: var(--text-muted);
+    }
+
+    /* Print styles */
+    @media print {
+      body {
+        background: #fff;
+        padding: 0;
+      }
+      .resume {
+        box-shadow: none;
+        border-radius: 0;
+        max-width: 100%;
+      }
+    }
+
+    /* Responsive */
+    @media (max-width: 720px) {
+      .resume {
+        flex-direction: column;
+      }
+      .sidebar {
+        width: 100%;
+      }
+      .main {
+        padding: 24px 20px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="resume">
+    <!-- ========== SIDEBAR ========== -->
+    <aside class="sidebar">
+      <div class="sidebar-top-accent"></div>
+
+      <div class="profile">
+        <div class="photo-ring">
+          <!-- Put your photo in the same folder and name it profile.jpg -->
+          <img src="oGrWP.png" alt="Vipul Kaushik" />
+        </div>
+        <h1>Vipul Kaushik</h1>
+        <div class="title">Software Developer</div>
+      </div>
+
+      <!-- Contact -->
+      <div class="sidebar-section">
+        <h3>Contact</h3>
+        <div class="contact-item">
+          <label>Email</label>
+          <span>vipulkaushik2023@gmail.com</span>
+        </div>
+        <div class="contact-item">
+          <label>Location</label>
+          <span>Lucknow, UP, India</span>
+        </div>
+        <div class="contact-item">
+          <label>University</label>
+          <span>BBAU Lucknow</span>
+        </div>
+        <div class="contact-item">
+          <label>Status</label>
+          <span>Open to Internships</span>
+        </div>
+      </div>
+
+      <!-- Technical Skills -->
+      <div class="sidebar-section">
+        <h3>Technical Skills</h3>
+
+        <div class="skill-item">
+          <div class="skill-name">HTML5 &amp; Semantics</div>
+          <div class="progress-track"><div class="progress-bar" style="width:95%"></div></div>
+        </div>
+        <div class="skill-item">
+          <div class="skill-name">Java (OOP &amp; Core)</div>
+          <div class="progress-track"><div class="progress-bar" style="width:90%"></div></div>
+        </div>
+        <div class="skill-item">
+          <div class="skill-name">CSS3 / Responsive</div>
+          <div class="progress-track"><div class="progress-bar" style="width:92%"></div></div>
+        </div>
+        <div class="skill-item">
+          <div class="skill-name">JavaScript (DOM)</div>
+          <div class="progress-track"><div class="progress-bar" style="width:85%"></div></div>
+        </div>
+        <div class="skill-item">
+          <div class="skill-name">Data Structures</div>
+          <div class="progress-track"><div class="progress-bar" style="width:88%"></div></div>
+        </div>
+        <div class="skill-item">
+          <div class="skill-name">Web Architecture</div>
+          <div class="progress-track"><div class="progress-bar" style="width:90%"></div></div>
+        </div>
+        <div class="skill-item">
+          <div class="skill-name">DBMS Basics</div>
+          <div class="progress-track"><div class="progress-bar" style="width:80%"></div></div>
+        </div>
+      </div>
+
+      <!-- Education -->
+      <div class="sidebar-section">
+        <h3>Education</h3>
+        <div class="edu-block">
+          <strong>B.Sc. Information Technology</strong>
+          <span>Babasaheb Bhimrao Ambedkar University (BBAU), Lucknow</span>
+          <span class="status">Undergraduate Student</span>
+        </div>
+      </div>
+
+      <!-- Languages -->
+      <div class="sidebar-section">
+        <h3>Languages</h3>
+        <div class="lang-text">English  •  Hindi</div>
+      </div>
+    </aside>
+
+    <!-- ========== MAIN ========== -->
+    <main class="main">
+
+      <!-- Summary -->
+      <section class="section">
+        <h2 class="section-title">Professional Summary</h2>
+        <p class="summary-text">
+          Undergraduate software enthusiast specializing in clean semantic HTML5,
+          Object-Oriented Java programming, and modern responsive web development.
+          Passionate about turning ideas into polished digital experiences through
+          structured code, thoughtful UI design, and continuous learning. Currently
+          pursuing B.Sc. IT at BBAU Lucknow and actively seeking internship and
+          full-stack project opportunities.
+        </p>
+      </section>
+
+      <!-- Core Competencies -->
+      <section class="section">
+        <h2 class="section-title">Core Competencies</h2>
+        <ul class="comp-list">
+          <li>
+            <strong>HTML5 &amp; Web Semantics</strong>
+            <span>Semantic markup, accessibility (A11y), SEO best practices, responsive viewports</span>
+          </li>
+          <li>
+            <strong>Java Programming</strong>
+            <span>OOP principles, data structures, algorithms, modular design patterns</span>
+          </li>
+          <li>
+            <strong>Full Web Development</strong>
+            <span>CSS3 Flexbox/Grid, vanilla JS DOM, glassmorphic UI, dynamic interactions</span>
+          </li>
+          <li>
+            <strong>Problem Solving</strong>
+            <span>Algorithmic thinking, clean code architecture, iterative development</span>
+          </li>
+        </ul>
+      </section>
+
+      <!-- Featured Projects -->
+      <section class="section">
+        <h2 class="section-title">Featured Projects</h2>
+
+        <div class="project">
+          <h4>Restaurant Ordering Experience</h4>
+          <div class="tags">HTML5  •  CSS3 Grid  •  JavaScript</div>
+          <p>
+            Responsive digital food catalog and table-ordering UI with real-time price
+            calculations, item categorization, and seamless cart interaction. Built with
+            semantic HTML5, CSS Grid, and custom JS state handlers.
+          </p>
+        </div>
+
+        <div class="project">
+          <h4>Aevum Haute Couture Lookbook</h4>
+          <div class="tags">Luxury UI  •  Custom CSS  •  Branding</div>
+          <p>
+            High-fashion portfolio showcase for luxury clothing line 'Aevum'. Focused on
+            typographic harmony, minimalist palettes, subtle hover reveals, and
+            boutique-level presentation aesthetics.
+          </p>
+        </div>
+
+        <div class="project">
+          <h4>Java Data Structure &amp; Utility Engine</h4>
+          <div class="tags">Core Java  •  OOP Design  •  Algorithms</div>
+          <p>
+            Modular console architecture implementing custom linked lists, recursive
+            sorting algorithms, multi-threading synchronization, and automated file stream
+            handling using pure Object-Oriented principles.
+          </p>
+        </div>
+      </section>
+
+      <!-- Academic Focus -->
+      <section class="section">
+        <h2 class="section-title">Academic Focus</h2>
+        <div class="chips">
+          <span class="chip">Java OOP Concepts</span>
+          <span class="chip">Data Structures &amp; Algorithms</span>
+          <span class="chip">Web Architecture</span>
+          <span class="chip">Database Management (DBMS)</span>
+          <span class="chip">Network Communications</span>
+          <span class="chip">Clean Programming Standards</span>
+        </div>
+      </section>
+
+      <!-- Availability -->
+      <div class="availability">
+        <strong>Available for Internships &amp; Full-Stack Projects</strong>
+        <span>Open to opportunities in web development, Java software, and collaborative projects.</span>
+      </div>
+
+    </main>
+  </div>
+
+</body>
+</html>
